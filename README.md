@@ -19,27 +19,27 @@ The Coil was made by manually winding ~700 turns of 24 guage wire, using a drill
 
 There are three components that make up the coil driver PCB, a high power mosfet, mosfet gate driver, and a current sensor. This PCB has 3 ports. One port that takes in temprature sensor data and outputs PWM actuated power to the coil. The second port takes in power and an input signal from the ESP32 and outputs data (temperature and current) to the ESP32. The last port is for taking in the power and ground from the 3S lipo.
 
-![COIL DRIVER PCB](./resources/coil_driver_pcb.png)
-![COIL DRIVER SCHEMATIC](./resources/coil_driver_scm.png)
+![COIL DRIVER PCB](./docs/images/coil_driver_pcb.png)
+![COIL DRIVER SCHEMATIC](./docs/images/coil_driver_scm.png)
 
 ### Wrist PCB 
 
 This PCB houses the ESP32, LCD touch screen and several other components. This PCB connects all the peripherals togethor and is powered directly from the battery. The LiPo Voltage is dropped down to 3V3 volts via a switching regulator, this ensures maximum efficiency. Upon first inspection the switching regulator could have to much of a voltage ripple for the ESP32, however after inspecting the output with an Osciliscope we found that the signal was safe for the microcontroller.
 
-![WRIST PCB](./resources/wrist_pcb.png)
-![WRIST SCHEMATIC](./resources/wrist_scm.png)
+![WRIST PCB](./docs/images/wrist_pcb.png)
+![WRIST SCHEMATIC](./docs/images/wrist_scm.png)
 
 ### 3D Printed Parts/CAD
 
 To mount all the PCBs onto one system we designed 3D printed parts which could be attached to a users hand and wrist. We manually mapped the geometry of one our gorup memebers wrist, forearm, and hand then created mounts for each PCB and the coil. We designed each part in Solidworks 2021. Once the CAD was done we 3D printed on an Ultimaker 3S, using tough PLA. 
 
-![WRIST MOUNT CAD](./resources/wrist_cad.png)
-![HAND MOUNT CAD](./resources/hand_cad.png)
-![COIL CAD](./resources/coil_cad.png)
+![WRIST MOUNT CAD](./docs/images/wrist_cad.png)
+![HAND MOUNT CAD](./docs/images/hand_cad.png)
+![COIL CAD](./docs/images/coil_cad.png)
 
 
 ## State Diagrams
 
 We have a state diagram for limiting the current and the temperature. If either the current or the temperature gets too high, we set a flag to TRUE, and don't set it back again until there is a prolonged period of low current and low temperature.
-![SAFETY FSM](./resources/safety_fsm.png)
+![SAFETY FSM](./docs/images/safety_fsm.png)
 

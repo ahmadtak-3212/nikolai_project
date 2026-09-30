@@ -1,3 +1,0 @@
-(fp_lib_table
-  (lib (name "ESP32-Wrover-E-FP")(type "KiCad")(uri "${KIPRJMOD}/esp32-wrover.pretty")(options "")(descr ""))
-)

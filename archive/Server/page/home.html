@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Nikolai Home</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="./static/gridstack.min.css">
+    <link rel="stylesheet" href="./static/nv.d3.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="./static/gridstack-jq.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.0.min.js"></script>
+    <script src="./static/d3.v3.js"></script>
+    <script src="./static/nv.d3.js"></script>
+    <script type="text/javascript">
+      var Uname = sessionStorage.getItem("username");
+      var Pass = sessionStorage.getItem("password");
+      var temp_thres;
+      var curr_thres;
+
+      var jQ =jQuery.noConflict();
+      jQ(document).ready(function(){
+        console.log("Page ready")
+        //jQ.get("608dev-2.net/sandbox/sc/team73/Server/server.py", {Uname: User}, function(data, status){
+          //var json_data = JSON.parse(data)
+          //var temp_thres = json_data.temp_setting;
+          //var curr_thres = json_data.curr_setting;
+          //var power_lvl = json_data.power_setting;
+          //document.getElementById("Temperature").innerHTML = temp_thres;
+          //document.getElementById("Current").innerHTML = curr_thres;
+          //document.getElementById("Power").innerHTML = power_lvl;
+        //})
+        document.getElementById("Temperature").innerHTML = 0;
+        document.getElementById("Current").innerHTML = 0;
+
+        const call_url = "https://608dev-2.net/sandbox/sc/team73/Server/server.py?settings=true&Uname=" + Uname;
+        fetch(call_url)
+        .then(response => response.json())
+        .then(data => {
+            console.log("GET");
+            console.log(data);
+            //var json_d = JSON.parse(data);
+            //var current_user = json_d.user;
+            //var curr_thres = json_d.curr_thresh;
+            //var power_thres = json_d.power_thresh;
+
+
+            temp_thres = data["temp_thresh"];
+            curr_thres = data["curr_thresh"];
+            //var power_thres = data["power_thresh"];
+
+            if (temp_thres) {
+              document.getElementById("Temperature").innerHTML = temp_thres;
+            }
+            if (curr_thres) {
+              document.getElementById("Current").innerHTML = curr_thres;
+            }
+            //document.getElementById("Power").innerHTML = power_thres;
+
+
+        });
+        //console.log("after settings");
+        document.getElementById("User").innerHTML = Uname;
+        jQ.get("../server.py",  function(data, status){
+          var json_data = JSON.parse(data)
+
+          var d_temp_values = []
+          var d_curr_values = []
+
+          console.log(json_data)
+
+          for (let i = 0; i < json_data.temp.length; i++){
+            time = (new Date(json_data.dts[i])).getTime()
+            temp = json_data.temp[i]
+            curr = json_data.curr[i]
+            d_temp_values.push({x: time, y: temp})
+            d_curr_values.push({x: time, y: curr})
+          }
+          var d_temp = [
+            {
+              "key": "Temprature",
+              "values" : d_temp_values,
+              "color" : "#ff7f0e"
+            }
+          ]
+          var d_curr = [
+            {
+              "key": "Current",
+              "values" : d_curr_values,
+              "color" : "#ff7f0e"
+            }
+          ]
+
+          nv.addGraph(function() {
+            var chart = nv.models.lineChart()
+                          .useInteractiveGuideline(true)
+
+
+            chart.xAxis
+                .axisLabel('Time')
+                .tickFormat(function(d) {
+                    return d3.time.format('%x')(new Date(d))
+                })
+
+
+            chart.yAxis
+              .axisLabel('Temprature (C)')
+              .tickFormat(d3.format('.02f'))
+
+
+
+            d3.select('#temp-graph svg')
+                .datum(d_temp)
+                .transition().duration(500)
+                .call(chart)
+
+            //TODO: Figure out a good way to do this automatically
+            nv.utils.windowResize(chart.update)
+
+            return chart
+          })
+          nv.addGraph(function() {
+            var chart = nv.models.lineChart()
+                          .useInteractiveGuideline(true)
+
+
+            chart.xAxis
+                .axisLabel('Time')
+                .tickFormat(function(d) {
+                    return d3.time.format('%x')(new Date(d))
+                })
+
+
+            chart.yAxis
+              .axisLabel('Current (A)')
+              .tickFormat(d3.format('.02f'))
+
+            d3.select('#curr-graph svg')
+                .datum(d_curr)
+                .transition().duration(500)
+                .call(chart)
+
+            //TODO: Figure out a good way to do this automatically
+            nv.utils.windowResize(chart.update)
+
+            return chart
+          })
+        })
+      })
+    </script>
+    <style>
+    p {text-align: center;}
+    .settings {
+      background-color: lightblue;
+      text-align: center;
+    }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-dark bg-dark">
+      <span class="navbar-brand mb-0 h1">Nikolai Home</span>
+    </nav>
+
+
+
+    <div id="temprature" class="card" style="width: 50%; margin: 0 auto; margin-top: 30px;">
+      <div class="card-header bg-primary text-center" style="font-size: x-large;"> <b>Temprature</b> </div>
+      <div class="card-body">
+          <div id="temp-graph">
+            <svg></svg>
+          </div>
+      </div>
+      <div id="last-updated" class="card-footer text-muted"> Last Updated:  </div>
+    </div>
+
+    <div id="current" class="card" style="width: 50%; margin: 0 auto; margin-top: 30px;">
+      <div class="card-header bg-primary text-center" style="font-size: x-large;"> <b>Current</b> </div>
+      <div class="card-body">
+          <div id="curr-graph">
+            <svg></svg>
+          </div>
+      </div>
+      <div id="last-updated" class="card-footer text-muted"> Last Updated:  </div>
+    </div>
+    <div class="settings">
+
+      <h2> User Settings</h2>
+
+      <form id="settings">
+        <label><b>User:</b></label>
+        <label><span id="User">&deg;C</span></label><br><br>
+        <label><b>Temperature Threshold (Celsius):</b></label>
+        <label><span id="Temperature">&deg;C</span></label>
+        <button type="button" value="temp_up" onclick="inc_temp()">&uarr;</button>
+        <button type="button" value="temp_down" onclick="dec_temp()">&darr;</button> <br><br>
+        <label><b>Current Threshold (Amps):</b></label>
+        <label><span id="Current"> A</span></label>
+        <button type="button" value="curr_up" onclick="inc_curr()">&uarr;</button>
+        <button type="button" value="curr_down" onclick="dec_curr()">&darr;</button> <br>
+        <script type="text/javascript">
+
+
+          function make_post(form_data){
+            const post_url = "https://608dev-2.net/sandbox/sc/team73/Server/server.py";
+            console.log(post_url);
+
+            form_data.append("Uname", Uname);
+            form_data.append("Pass", Pass);
+
+            fetch(post_url, {method: 'POST', body: form_data})
+            .then(response => console.log(response));
+          }
+
+          function inc_temp(){
+
+            temp_thres = temp_thres+1;
+            document.getElementById("Temperature").innerHTML = temp_thres;
+
+            const form_data = new FormData();
+            form_data.append("temp_thresh", temp_thres);
+
+            make_post(form_data);
+          }
+
+          function dec_temp(){
+
+            temp_thres = temp_thres-1;
+            document.getElementById("Temperature").innerHTML = temp_thres;
+
+            const form_data = new FormData();
+            form_data.append("temp_thresh", temp_thres);
+
+            make_post(form_data);
+          }
+
+          function inc_curr(){
+
+            curr_thres = curr_thres+1;
+            document.getElementById("Current").innerHTML = curr_thres;
+
+            const form_data = new FormData();
+            form_data.append("curr_thresh", curr_thres);
+
+            make_post(form_data);
+          }
+
+          function dec_curr(){
+
+            curr_thres = curr_thres-1;
+            document.getElementById("Current").innerHTML = curr_thres;
+
+            const form_data = new FormData();
+            form_data.append("curr_thresh", curr_thres);
+
+            make_post(form_data);
+          }
+
+        </script>
+      </form>
+
+
+    </div>
+  </body>
+  <style>
+    #temp-graph svg {
+      height: 300px;
+    }
+    #curr-graph svg {
+      height: 300px;
+    }
+  </style>
+</html>

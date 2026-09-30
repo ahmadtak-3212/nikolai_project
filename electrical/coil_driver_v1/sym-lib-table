@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "TMCS1107")(type "Legacy")(uri "/home/fox/Desktop/KiCAD/2022-03-28_19-24-25/2022-03-28_19-24-25.lib")(options "")(descr ""))
+  (lib (name "maghand-rescue")(type "Legacy")(uri "${KIPRJMOD}/maghand-rescue.lib")(options "")(descr ""))
+)
